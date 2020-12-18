@@ -5,8 +5,10 @@ const { PORT = 3000 } = process.env;
 const cors =require("cors");
 const morgan =require("morgan");
 const mongoose = require("./db/db");
-const AuthRouter = require("./controllers/user")
-const auth = require("./auth")
+const AuthRouter = require("./controllers/user");
+const StudentRouter = require("./controllers/students");
+const auth = require("./auth");
+
 
 //Middleware
 
@@ -21,6 +23,8 @@ app.get("/", auth, (req, res) => {
 });
 
 app.use("/auth", AuthRouter)
+
+app.use("/student", StudentRouter);
 
 //Listener
 
