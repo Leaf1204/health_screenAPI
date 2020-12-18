@@ -6,6 +6,7 @@ const cors =require("cors");
 const morgan =require("morgan");
 const mongoose = require("./db/db");
 const AuthRouter = require("./controllers/user")
+const auth = require("./auth")
 
 //Middleware
 
@@ -15,7 +16,12 @@ app.use(morgan("tiny"));
 
 
 //Routers
+app.get("/", auth, (req, res) => {
+    res.json(req.payload);
+});
+
 app.use("/auth", AuthRouter)
+
 //Listener
 
 app.listen(PORT, () => {
