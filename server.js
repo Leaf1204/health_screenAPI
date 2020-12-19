@@ -7,6 +7,8 @@ const morgan =require("morgan");
 const mongoose = require("./db/db");
 const AuthRouter = require("./controllers/user");
 const StudentRouter = require("./controllers/students");
+const ParentRouter = require("./controllers/parents");
+const TeacherRouter = require("./controllers/teachers");
 const auth = require("./auth");
 
 
@@ -25,6 +27,8 @@ app.get("/", auth, (req, res) => {
 app.use("/auth", AuthRouter)
 
 app.use("/student", StudentRouter);
+app.use("/parent", ParentRouter);
+app.use("/teacher", TeacherRouter);
 
 //Listener
 
