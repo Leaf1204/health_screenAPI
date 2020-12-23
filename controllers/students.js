@@ -7,8 +7,7 @@ const router = Router();
 // index
 router.get("/", auth, async (req, res)=>{
     try {
-        const {username} = req.payload
-        res.status(200).json(await Student.find({username}));
+        res.status(200).json(await Student.find());
     }
     catch(error) {
         res.status(400).json({error})

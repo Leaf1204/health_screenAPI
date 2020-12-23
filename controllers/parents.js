@@ -18,6 +18,9 @@ router.get("/", auth, async (req, res)=>{
 // Create
 router.post("/", auth, async (req, res)=>{
     try {
+        
+        console.log(req.body);
+
         let newUser = new User({
             username : req.body.username,
             password : await bcrypt.hash(req.body.password,10),
