@@ -9,6 +9,8 @@ const router = Router();
 // Create
 router.post("/", auth, async (req, res)=>{
     try {
+        // todo : calulate based on result of questions
+        req.body.can_attend_school = true;
         res.status(200).json(await HealthForm.create(req.body));
     }
     catch(error) {
