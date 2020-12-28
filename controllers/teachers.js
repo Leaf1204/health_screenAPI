@@ -9,7 +9,9 @@ const router = Router();
 // index
 router.get("/", auth, async (req, res)=>{
     try {
-        res.status(200).json(await Teacher.find());
+        // todo : write a project query to return student names instead of ids
+        // https://stackoverflow.com/questions/46462035/join-lookup-object-ids-in-array
+        res.status(200).json(await Teacher.find()); 
     }
     catch(error) {
         res.status(400).json({error})
@@ -29,7 +31,8 @@ router.post("/", auth, async (req, res)=>{
 
         let newTeacher = new Teacher({
             username : theUser.username,
-            teacherName : req.body.teacherName
+            teacherName : req.body.teacherName,
+            students_ids: req.body.students_ids.split(",")
         });
         res.status(200).json(await Teacher.create(newTeacher));
     }
@@ -40,11 +43,27 @@ router.post("/", auth, async (req, res)=>{
 
 // update
 router.put("/:id", auth, async (req, res)=>{
+
     try {
-        const {username} = req.payload
-        req.body.username = username
-        const {id} = req.params
-        res.status(200).json(await Teacher.findByIdAndUpdate(id, req.body, {new: true}));
+        console.log("teacher " + JSON.stringify(req.body));
+        
+        const {id} = req.params;
+        const updateTeacher = {
+            teacherName : req.body.teacherName,
+            students_ids: req.body.students_ids.split(",")
+        };
+
+        const updateResult = await Teacher.findByIdAndUpdate(id, updateTeacher);
+
+        if(req.body.password != undefined){
+
+            const updateUser = {
+                password : await bcrypt.hash(req.body.password,10)
+            };
+
+            await User.findOneAndUpdate({username:updateResult.username}, updateUser, {useFindAndModify: false});
+        }
+        res.status(200).json(updateResult);
     }
     catch(error) {
         res.status(400).json({error})
@@ -54,7 +73,6 @@ router.put("/:id", auth, async (req, res)=>{
 // delete
 router.delete("/:id", auth, async (req, res)=>{
     try {
-        const {username} = req.payload
         const {id} = req.params
         res.status(200).json(await Teacher.findByIdAndDelete(id));
     }

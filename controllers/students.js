@@ -14,11 +14,21 @@ router.get("/", auth, async (req, res)=>{
     }
 })
 
+// fetch students for parent
+router.get("/:username", auth, async (req, res)=>{
+    try {
+        const {username} = req.params;
+        console.log("user name " + username);
+        res.status(200).json(await Student.find({"parent_user_name": username}));
+    }
+    catch(error) {
+        res.status(400).json({error})
+    }
+})
+
 // Create
 router.post("/", auth, async (req, res)=>{
     try {
-        const {username} = req.payload
-        req.body.username = username
         res.status(200).json(await Student.create(req.body));
     }
     catch(error) {
@@ -28,10 +38,10 @@ router.post("/", auth, async (req, res)=>{
 
 // update
 router.put("/:id", auth, async (req, res)=>{
+    
+    console.log("childname " + JSON.stringify(req.body));
     try {
-        const {username} = req.payload
-        req.body.username = username
-        const {id} = req.params
+        const {id} = req.params;
         res.status(200).json(await Student.findByIdAndUpdate(id, req.body, {new: true}));
     }
     catch(error) {
@@ -42,7 +52,6 @@ router.put("/:id", auth, async (req, res)=>{
 // delete
 router.delete("/:id", auth, async (req, res)=>{
     try {
-        const {username} = req.payload
         const {id} = req.params
         res.status(200).json(await Student.findByIdAndDelete(id));
     }

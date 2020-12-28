@@ -3,6 +3,7 @@ const Parent = require("../models/parents")
 const auth = require("../auth")
 const {Router} = require("express");
 const bcrypt =require("bcryptjs");
+const { update } = require("../models/user");
 const router = Router();
 
 // index
@@ -18,8 +19,6 @@ router.get("/", auth, async (req, res)=>{
 // Create
 router.post("/", auth, async (req, res)=>{
     try {
-        
-        console.log(req.body);
 
         let newUser = new User({
             username : req.body.username,
@@ -43,10 +42,21 @@ router.post("/", auth, async (req, res)=>{
 // update
 router.put("/:id", auth, async (req, res)=>{
     try {
-        const {username} = req.payload
-        req.body.username = username
-        const {id} = req.params
-        res.status(200).json(await Parent.findByIdAndUpdate(id, req.body, {new: true}));
+        const {id} = req.params;
+        const updateParent = {
+            parentName : req.body.parentName
+        };
+
+        const updateResult = await Parent.findByIdAndUpdate(id, updateParent);
+        if(req.body.password != undefined){
+
+            const updateUser = {
+                password : await bcrypt.hash(req.body.password,10)
+            };
+
+            await User.findOneAndUpdate({username:updateResult.username}, updateUser, {useFindAndModify: false});
+        }
+        res.status(200).json(updateResult);
     }
     catch(error) {
         res.status(400).json({error})
@@ -56,7 +66,6 @@ router.put("/:id", auth, async (req, res)=>{
 // delete
 router.delete("/:id", auth, async (req, res)=>{
     try {
-        const {username} = req.payload
         const {id} = req.params
         res.status(200).json(await Parent.findByIdAndDelete(id));
     }
