@@ -4,14 +4,28 @@ const auth = require("../auth")
 const {Router} = require("express");
 const User = require("../models/user");
 const bcrypt =require("bcryptjs");
+const Student = require("../models/students");
 const router = Router();
+
 
 // index
 router.get("/", auth, async (req, res)=>{
     try {
         // todo : write a project query to return student names instead of ids
         // https://stackoverflow.com/questions/46462035/join-lookup-object-ids-in-array
-        res.status(200).json(await Teacher.find()); 
+        let teachers = await Teacher.aggregate([
+            { "$lookup": {
+                "from": "students",
+                "localField": "students_ids",
+                "foreignField": "_id",
+                "as": "student"
+            } },
+            { "$addFields": {
+                "names": "$student.child_name"
+            } }
+        ]);
+
+        res.status(200).json(teachers); 
     }
     catch(error) {
         res.status(400).json({error})
@@ -26,7 +40,6 @@ router.post("/", auth, async (req, res)=>{
            password : await bcrypt.hash(req.body.password,10),
            typeOf: "teacher"
         });
-
         const theUser = await User.create(newUser);
 
         let newTeacher = new Teacher({
@@ -45,8 +58,6 @@ router.post("/", auth, async (req, res)=>{
 router.put("/:id", auth, async (req, res)=>{
 
     try {
-        console.log("teacher " + JSON.stringify(req.body));
-        
         const {id} = req.params;
         const updateTeacher = {
             teacherName : req.body.teacherName,
